@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Progress Program Gantt Chart</title>
+  <style>
+    body {
+      background-image: linear-gradient(to bottom, #888, #444);
+      background-attachment: fixed;
+      background-repeat: no-repeat;
+    }
+    th {
+      font-size: 12px;
+    }
+    .mainContainer {
+      background-color: #555;
+      width: 95vw;
+      height: 95vh;
+      margin: auto;
+      display: flex;
+      flex-direction: column;
+    }
+    .tab {
+      color: #FFF;
+      overflow: hidden;
+      border: 1px solid #DDD;
+      background-color: #555;
+      height: 50px;
+    }
+    .tab button {
+      background-image: linear-gradient(to right, #888, #444);
+      background-repeat: no-repeat;
+      background-attachment: fixed;
+      color: #EEE;
+      float: left;
+      border: none;
+      outline: none;
+      cursor: pointer;
+      padding: 10px;
+      height: 100%;
+    }
+    .tab button:hover{
+      background-image: linear-gradient(to right, #AAE, #99C);
+      background-repeat: no-repeat;
+      background-attachment: fixed;
+    }
+    .tab button.active {
+      background-image: linear-gradient(to right, #CAC, #868);
+      background-attachment: fixed;
+      background-repeat: no-repeat;
+    }
+    .tabContent {
+      background-image: linear-gradient(to bottom, #AAA, #555);
+      background-attachment: fixed;
+      background-repeat: no-repeat;
+      height: calc(100% - 50px);
+      border: 1px solid #DDD;
+      padding: 5px;
+      overflow: scroll;
+    }
+    .titles_e {
+      width: 350px;
+    }
+    .dayVU_e {
+      width: 100px;
+    }
+    .table_tid {
+      width: 40px;
+    }
+    .table_item {
+      width: 80px;
+    }
+    .table_start, .table_dur, .table_end {
+      width: 50px;
+    }
+    .btn_del {
+      width: 35px;
+      text-align: center;
+    }
+    .flowlogic {
+      width: 50px;
+    }
+    .soj {
+      width: 800px;
+      height: 600px;
+    }
+    .btn_addTask {
+      width: 80px;
+    }
+    #thumbnailPIC {
+      max-width: 350px;
+      max-height: 250px;
+    }
+  </style>
+  <script type="text/javascript" src="./progGen.js"></script>
+</head>
+<body onload="init()">
+  <div id="mainContainer" class="mainContainer">
+    <div class="tab">
+      <button id="btn_gantt" class="tablinks" onclick="changeTab('gantt')">Gantt Chart</button>
+      <button id="btn_entries" class="tablinks" onclick="changeTab('entries')">Task Entry</button>
+      <button id="btn_loadJSON" class="tablinks" onclick="changeTab('loadJSON')">Load JSON</button>
+      <button id="btn_exportJSON" class="tablinks" onclick="changeTab('exportJSON')">Export JSON</button>
+      <button id="btn_format" class="tablinks" onclick="changeTab('format')">Formatting</button>
+    </div>
+    <div id="gantt" class="tabContent">
+      <h6>Gantt Chart</h6>
+      <img id="outPIC" />
+    </div>
+    <div id="entries" class="tabContent">
+      <h4>::Program Data Entry::</h4>
+      <table>
+        <tr>
+          <td>Project Title:</td>
+          <td colspan="3"><input id="projT" class="titles_e" type="text" onchange="titleChange()" /></td>
+        </tr>
+        <tr>
+          <td>Program Title:</td>
+          <td colspan="3"><input id="progT" class="titles_e" type="text" onchange="titleChange()" /></td>
+        </tr>
+        <tr>
+          <td>Prepared by:</td>
+          <td><input id="prep" class="dayVU_e" type="text" onchange="titleChange()" /></td>
+          <td>version:</td>
+          <td><input id="verSion" class="dayVU_e" type="text" onchange="titleChange()" /></td>
+        </tr>
+        <tr>
+          <td>Date of Update:</td>
+          <td><input id="dUpdate" class="dayVU_e" type="text" onchange="titleChange()" /></td>
+          <td>Days extended<br />after Completion Date</td>
+          <td><input id="dayExtend" class="dayVU_e" type="number" step="1" onchange="dayExtChk()" /></td>
+        </tr>
+        <tr>
+          <td id="imgthumb_td" colspan="4">
+            :: preview:: <br /><img id="thumbnailPIC" /><br />:: preview ::
+          </td>
+        </tr>
+      </table>
+      <table id="tasksTable">
+        <tr>
+          <th>Task ID</th>
+          <th>Item</th>
+          <th>Description</th>
+          <th>Start</th>
+          <th>Duration</th>
+          <th>End</th>
+          <th>FS</th>
+          <th>SS</th>
+          <th>FF</th>
+          <th>Del</th>
+        </tr>
+        <tbody id="dataEntry">
+          <tr>
+            <td><input class="table_item" type="text" /></td>
+            <td><input class="table_desc" type="text" /></td>
+            <td><input class="table_start" type="number" step="1" /></td>
+            <td><input class="table_dur" type="number" step="1" /></td>
+            <td><input class="table_end" type="number" disabled /></td>
+            <td><input class="flowlogic" type="text" disabled /></td>
+            <td><input class="flowlogic" type="text" disabled /></td>
+            <td><input class="flowlogic" type="text" disabled /></td>
+            <td><button class="btn_del">Del</button></td>
+          </tr>
+            </tbody>
+      </table>
+      <button id="addTask" class="btn_addTask" onclick="addTask()">Add Task</button>
+    </div>
+    <div id="format" class="tabContent">
+      <h4>Reserved for Formatting of Gantt Chart</h4>
+    </div>
+    <div id="loadJSON" class="tabContent">
+      <h4>Reserved for load existing JSON file</h4>
+    </div>
+    <div id="exportJSON" class="tabContent">
+      <h4>Reserved for export JSON file</h4>
+      <textarea id="jsonnow" class="soj"></textarea>
+    </div>
+  </div>
+  <script>
+    document.getElementById('btn_entries').click();
+  </script>
+</body>
+</html>
