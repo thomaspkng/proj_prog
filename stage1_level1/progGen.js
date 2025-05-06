@@ -1,5 +1,4 @@
 /* JS for generate project program */
-// ST - Dispaly formatting with CSS
 function changeTab(tabName) {
   getContainerWidth();
   let i, tabContent, tabLinks;
@@ -14,17 +13,9 @@ function changeTab(tabName) {
   document.getElementById(tabName).style.display = "block";
   document.getElementById(`btn_${tabName}`).className += " active";
 }
-function getContainerWidth() {
-    let mainContainerW = document.getElementById('mainContainer').clientWidth;
-  }
-// ED - Dispaly formatting with CSS
-
-// Data, Chart and Table Maniplate
-// Global variables
 let focusCell = [1,1];
-let svg2jpg = new Image(); // for rendered Gantt Chart
-let svg_final = ""; // for finalized SVG
-// template JSON for whole program
+let svg2jpg = new Image();
+let svg_final = "";
 let progJSON =
 {
   "projectdata":{
@@ -66,18 +57,12 @@ let progJSON =
   },
   "verChkCode":"0000"
 };
-// formatting of chart, to be update by external JSON
-let workingDay_number = 1; // default total days of the project
+let workingDay_number = 1;
 let title_box_width = 100;
 let svg_height = 10;
 let tasks_height = 10;
 let taskHead_totalWidth = 10;
-// operations on picture generation
-
-// Task Table
-// use {progJSON} to generate input table
 function JSON2inputTable() {
-  // generate the task table
   let tr_now, item_now, desc_now, start_now, end_now, dur_now, fs_now, ss_now, ff_now, i;
   let tbody_content = "";
   let tJ = progJSON.taskJSON;
@@ -109,33 +94,25 @@ function JSON2inputTable() {
   }
   document.getElementById('dataEntry').innerHTML = tbody_content;
   addTaskListeners();
-  // title block data refill
   document.getElementById('projT').value = progJSON.projectdata.projtitle;
   document.getElementById('progT').value = progJSON.projectdata.progtitle;
   document.getElementById('prep').value = progJSON.projectdata.prepared;
   document.getElementById('dUpdate').value = progJSON.projectdata.dateofupdate;
   document.getElementById('verSion').value = progJSON.projectdata.version;
   document.getElementById('dayExtend').value = progJSON.ganttchartFormat.end_day_extend;
-
-  // ST - showjson at tab, to be delete
   document.getElementById('jsonnow').innerHTML = JSON.stringify(progJSON);
-  // ED - showjson at tab, to be delete
 }
-
-// on table input change, check and modify {progJSON} and regen chart & table
 function inputTable2JSON() {
   let i;
   let taskJSON_now_Array = [];
   let pJ = progJSON.projectdata;
   let fJ = progJSON.ganttchartFormat;
-  // modify proj titles and end-day-extend
   pJ.projtitle = document.getElementById('projT').value;
   pJ.progtitle = document.getElementById('progT').value;
   pJ.version = document.getElementById('verSion').value;
   pJ.dateofupdate = document.getElementById('dUpdate').value;
   pJ.prepared = document.getElementById('prep').value;
   fJ.end_day_extend = parseInt(document.getElementById('dayExtend').value);
-  // read dataTable line-by-line and modify JSON
   let dataTable = document.getElementById('dataEntry');
   let rows = dataTable.getElementsByTagName('tr');
   for(i=0;i<rows.length;i++) {
@@ -145,12 +122,9 @@ function inputTable2JSON() {
   }
   progJSON.taskJSON = taskJSON_now_Array;
   document.getElementById('jsonnow').innerHTML = JSON.stringify(progJSON);
-  // finish data modification, re-generate table and chart
   JSON2inputTable();
   renderSVG2PIC();
 }
-
-//add task
 function addTask() {
   let tJ = progJSON.taskJSON;
   let taskTemplate = `{"item":"_item","desc":"_description","start":1,"end":1,"dur":1,"fs":"","ss":"","ff":"","tid":${progJSON.ganttchartFormat.tid+1}}`;
@@ -162,18 +136,12 @@ function addTask() {
   renderSVG2PIC();
   JSON2inputTable();
 }
-// delete task
 function delTask(evt) {
   focusCell = [1,1];
   let rowID = evt.target.closest('tr').rowIndex;
   document.getElementById('tasksTable').deleteRow(rowID);
   inputTable2JSON();
 }
-
-// Event Listeners
-// add listeners to non-regenerate elements
-function addListeners() {}
-// add listeners to elements after regenerate input-table
 function addTaskListeners() {
   let i;
   let items = document.getElementsByClassName('table_item');
@@ -198,20 +166,17 @@ function addTaskListeners() {
   for(i=0;i<dels.length;i++) {
     dels[i].addEventListener('click', function(evt) {delTask(evt);})
   }
-  st_dur_check(); // check if value > 0
+  st_dur_check();
 }
-// Title change, regen chart
 function titleChange() {
   inputTable2JSON();
 }
-// day extend after completion change, check if value > 0, trigger hard coded
 function dayExtChk() {
   let value_now = document.getElementById('dayExtend').value;
   value_now = (value_now<1)?1:value_now;
   document.getElementById('dayExtend').value = value_now;
   inputTable2JSON();
 }
-// check the value of input START / DUR > 0 and Calc End Date
 function st_dur_check() {
   let i;
   let start_e_now = document.getElementsByClassName('table_start');
@@ -243,7 +208,6 @@ function st_dur_check() {
     });
   }
 }
-
 function focusLastInput() {
   let rowIndex_now = parseInt(focusCell[0])-1;
   let tdIndex_now = parseInt(focusCell[1]);
@@ -255,9 +219,6 @@ function focusLastInput() {
     tds[tdIndex_now].children[0].focus();
   }
 }
-
-// Task SVG/Pic
-// generate svg component for titlebox
 function svg_titleboxGen() {
   let fJ = progJSON.ganttchartFormat;
   let margin_border = fJ.margin_offset + fJ.borderW;
@@ -270,7 +231,6 @@ function svg_titleboxGen() {
   `;
   return titleBoxSVG;
 }
-// generate svg component for taskhead [ID, desc, start...]
 function svg_taskheadGen() {
   let fJ = progJSON.ganttchartFormat;
   let taskheadHeight = fJ.days_box_height + fJ.day_box_height;
@@ -305,7 +265,6 @@ function svg_taskheadGen() {
   `;
   return taskHeadSVG;
 }
-// generate svg component for days bar and day heads
 function svg_daysHeadGen() {
   let fJ = progJSON.ganttchartFormat;
   taskHead_totalWidth = fJ.item_col_width + fJ.desc_col_width + fJ.start_col_width + fJ.end_col_width + fJ.dur_col_width;
@@ -329,7 +288,6 @@ function svg_daysHeadGen() {
   `;
   return daysHead;
 }
-// generate svg componemt for vertical day background
 function svg_daybarGen() {
   let fJ = progJSON.ganttchartFormat;
   let daybarSVG = "";
@@ -349,7 +307,6 @@ function svg_daybarGen() {
   `;
   return daybarSVG;
 }
-// generate svg component for each task from {progJSON}
 function svg_taskGen() {
   let taskSVG = "";
   let tasks = "";
@@ -381,8 +338,6 @@ function svg_taskGen() {
   `;
   return taskSVG;
 }
-
-// genera te svg component for bottom bar / footing
 function svg_footing() {
   let footingSVG = "";
   let fJ = progJSON.ganttchartFormat;
@@ -402,10 +357,7 @@ function svg_footing() {
   `;
   return footingSVG;
 }
-
-// combine all components to form 'svg_final'
 function svgFinalize() {
-  // loop via taskJSON to sort latest day of program
   let tJ = progJSON.taskJSON;
   workingDay_number = 1;
   if(tJ.length>0) {
@@ -414,11 +366,8 @@ function svgFinalize() {
     }
   }
   let fJ = progJSON.ganttchartFormat;
-  // calc the height of the inner SVG
   svg_height = fJ.title_box_height + fJ.day_box_height + fJ.days_box_height + fJ.task_box_height*progJSON.taskJSON.length + fJ.logo_box_height + fJ.footing_box_height;
-  // calc the width of the inner SVG
   title_box_width = fJ.item_col_width + fJ.desc_col_width + fJ.start_col_width + fJ.end_col_width + fJ.dur_col_width + (workingDay_number + fJ.end_day_extend + 1) * fJ.day_col_width;
-  // call functions for every components
   let titleBoxSVG = svg_titleboxGen();
   let taskheadSVG = svg_taskheadGen();
   let daysHeadSVG = svg_daysHeadGen();
@@ -437,14 +386,11 @@ function svgFinalize() {
   </svg>
   `;
 }
-// render 'svg_final' to PNG or other picture format
 function renderSVG2PIC() {
-  svgFinalize(); // generate SVG code and store in svg_final
-  //let thumbnailPIC = document.getElementById('imgthumb');
+  svgFinalize();
   let imgW = title_box_width + (progJSON.ganttchartFormat.margin_offset + progJSON.ganttchartFormat.borderW) * 2;
   let imgH = svg_height + (progJSON.ganttchartFormat.margin_offset + progJSON.ganttchartFormat.borderW) * 2;
   let svgInline = svg_final;
-  //let output = document.getElementById('thumbnailPIC');
   let output = document.getElementById('outPIC');
   let thumbPic = document.getElementById('thumbnailPIC');
   const svgDataBase64 = btoa(unescape(encodeURIComponent(svgInline)));
@@ -464,28 +410,7 @@ function renderSVG2PIC() {
   });
   image.src = svgDataUrl;
 }
-
-// run functions when body.onload
 function init() {
   JSON2inputTable();
   renderSVG2PIC();
 }
-
-/*
-Functions Coming Soon.....
-// using AJAX to check and import external JSON
-function readExtJSON() {}
-// using AJAX to export current progJSON for download
-function exportJSON() {}
-
-=== template of progJSON.taskJSON ===
-"taskJSON": [
-  {"item":1, "desc":"Task #1", "start":1, "end":5, "dur":5},
-  {"item":2, "desc":"Task #2", "start":3, "end":10, "dur":8},
-  {"item":3, "desc":"Task #3", "start":8, "end":15, "dur":8}
-]
-
-refer:
-https://jsfiddle.net/ourcodeworld/bqvmxz8w/13/
-
-*/
